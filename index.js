@@ -48,19 +48,42 @@ async function sendOrder() {
   }
 }
 
-// --- LOOP FUNCTION ---
-async function buy3() {
-  const lastOrder = 3;
-
-  for (let i = lastOrder; i > 0; i--) {
-    console.log(`Processing order #${i}...`);
+//--- CURRENT PRICE ---
+async function current() {
+    const url = 'http://82.29.197.23:8000/stocks/';
+  
     try {
-      await sendOrder();
-    } catch (err) {
-      console.error('Error during order sending:', err);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        },
+      });
+  
+      const result = await response.json();
+     // Isolate the price from the first stock object
+        if (Array.isArray(result) && result.length > 0) {
+            const price = result[0].price;
+            console.log('Current Price:', price);
+        } else {
+            console.warn('Unexpected response format:', result);
+        }
+    } catch (error) {
+      console.error('Error in current():', error);
     }
   }
-}
 
-// Run it
-
+// --- START LOOP ---
+function trading() {
+    console.log('Trading started...');
+    setInterval(async () => {
+      try {
+        await current();
+      } catch (err) {
+        console.error('Error calling current:', err);
+      }
+    }, 1000);
+  }
+  
+  trading();
