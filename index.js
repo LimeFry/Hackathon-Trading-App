@@ -94,6 +94,7 @@ async function sellOrder() {
       const result = await response.json();
       const cash = result.cash;
   
+
       return cash;
     } catch (error) {
       console.error('Error fetching account info:', error);
@@ -129,19 +130,17 @@ async function current() {
         const price = result[0].price;
         console.log('Current Price:', price);
   
-        if(price > getMoney()){
-            if (price < priceThreshold) {
-                console.log(`Price is below ${priceThreshold}. Sending order...`);
-                stockArray.push(new stock(buyPrice));
-                await sendOrder();
-                for(let i = 0; i < stockArray.length; i++){
-                    if(stockArray[i].buyPrice <= price+5){
-                        console.log(`Price is above profit margin. Selling...`);
-                        stockArray.splice(i,1);
-                        await sellOrder();
-                    }
-                }
+        if (price < priceThreshold) {
+          console.log(`Price is below ${priceThreshold}. Sending order...`);
+          stockArray.push(new stock(buyPrice));
+          await sendOrder();
+          for(let i = 0; i < stockArray.length; i++){
+            if(stockArray[i].buyPrice <= price+5){
+                console.log(`Price is above prufit margin. Selling...`);
+                stockArray.splice(i,1);
+                await sellOrder();
             }
+          }
         }
       } else {
         console.warn('Unexpected response format:', result);
