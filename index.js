@@ -78,10 +78,41 @@ async function sellOrder() {
     }
   }
 
+  // --- Money FUNCTION ---
+  async function getMoney() {
+    const url = 'http://82.29.197.23:8000/accounts/1';
+  
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${credentials}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      const result = await response.json();
+      const cash = result.cash;
+  
+      return cash;
+    } catch (error) {
+      console.error('Error fetching account info:', error);
+    }
+  }
+
+class stock{
+    constructor(buyPrice){
+        this.buyPrice = buyPrice;
+    }
+}
+
+const stockArray = []; 
+
 //------- BUY OR SELL-------
 async function current() {
     const url = 'http://82.29.197.23:8000/stocks/';
-    const priceThreshold = 85; // Set your trigger price here
+    const priceThreshold = 100; // Set your trigger price here
+    var buyPrice;
   
     try {
       const response = await fetch(url, {
@@ -98,12 +129,19 @@ async function current() {
         const price = result[0].price;
         console.log('Current Price:', price);
   
-        if (price < priceThreshold) {
-          console.log(`Price is below ${priceThreshold}. Sending order...`);
-          await sendOrder();
-        } else {
-          console.log(`Price is above ${priceThreshold}. Selling...`);
-          await sellOrder();
+        if(price > getMoney()){
+            if (price < priceThreshold) {
+                console.log(`Price is below ${priceThreshold}. Sending order...`);
+                stockArray.push(new stock(buyPrice));
+                await sendOrder();
+                for(let i = 0; i < stockArray.length; i++){
+                    if(stockArray[i].buyPrice <= price+5){
+                        console.log(`Price is above profit margin. Selling...`);
+                        stockArray.splice(i,1);
+                        await sellOrder();
+                    }
+                }
+            }
         }
       } else {
         console.warn('Unexpected response format:', result);
