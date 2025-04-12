@@ -12,6 +12,16 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /items:
+ *  get:
+ *    summary: Retrieve a list of users
+ *    responses:
+ *      200:
+ *        description: A list of users
+ */
+
 // Get all items
 router.get('/', async (req, res) => {
   try {
